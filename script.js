@@ -1,18 +1,33 @@
 let currentNum = 0;
 let calcArray = [];
-const calcButton = document.querySelectorAll('button');
-for (let i = 0; i < calcButton.length; i++){
-   calcButton[i].addEventListener('click', input); 
+
+window.onload = () => {
+    document.querySelector('.all-buttons').focus();
+    document.addEventListener('keypress', keyInput);
 }
 
-function input() {
+const calcMouse = document.querySelectorAll('button');
+for (let i = 0; i < calcMouse.length; i++){
+    calcMouse[i].addEventListener('click', mouseInput);
+}
+
+function mouseInput() {
     if (this.className === 'digits') {
-        console.log(this.value, this.id);
-calcArray.push(this.textContent);
+    calcArray.push(this.textContent);
     console.log(calcArray);
     }
-        
-        
+}   
+
+function keyInput(e) {
+    console.log(e);
+    let validkeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '+', '-', '*', '/', '%', '^', '='];
+    if (validkeys.indexOf(e)) {
+    calcArray.push(e.key);
+    console.log(calcArray);
+    }
+}
+
+ 
        /* 
 
     allclear
@@ -22,4 +37,4 @@ calcArray.push(this.textContent);
     decimal
     equals
     */
-}
+
