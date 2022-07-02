@@ -163,14 +163,15 @@ button.equals:active {
 	font-size: 12px;
 	text-align: center;
 	padding: 5px 0;
-	border-radius: 6px;
+	border-radius: 6px 6px 0 6px;
 
 	/* Position the tooltip text */
 	position: absolute;
 	z-index: 1;
 	bottom: 100%;
 	left: 50%;
-	margin-left: -100px;	/* Use half of the width to center */
+	margin-left: -210px;
+	margin-bottom: -15px;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
