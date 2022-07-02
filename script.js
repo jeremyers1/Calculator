@@ -17,11 +17,18 @@ function keyInput(e) {
             calcArray = calcArrayConcat(calcArray, validKeys);
             console.log(calcArray); // check to make sure number was entered properly
         } else if (validKeys.indexOf(e.key) < (validKeys.length - 3)) { // all operators
-            // TODO: Check to see if previous key was an operator, if so, replace it.
+            // Check to see if previous key was an operator, if so, replace it.
+            if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < 17) {
+                console.log(calcArray);
+                calcArray.pop();
+            }
             calcArray.push(e.key);
             console.log(calcArray); // checks to make sure operation was entered properly
         } else if (validKeys.indexOf(e.key) < (validKeys.length - 2)) { // Backspace
+            console.log('Array Length: ', calcArray.length);
             calcArray[calcArray.length - 1] = calcArray[calcArray.length - 1].slice(0, -1);
+            if (calcArray[calcArray.length - 1] === '') calcArray.pop();
+            console.log(calcArray);
         } else { // it's an '=' or 'Enter' and we need to calculate
             console.log("Will peform calculation now");
         }
