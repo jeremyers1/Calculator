@@ -16,6 +16,7 @@ function keyInput(e) {
             calcArray.push(e.key);
             calcArray = calcArrayConcat(calcArray, validKeys);
             console.log(calcArray); // check to make sure number was entered properly
+            updateDisplay(calcArray);
         } else if (validKeys.indexOf(e.key) < (validKeys.length - 3)) { // all operators
             // Check to see if previous key was an operator, if so, replace it.
             if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < 17) {
@@ -24,13 +25,16 @@ function keyInput(e) {
             }
             calcArray.push(e.key);
             console.log(calcArray); // checks to make sure operation was entered properly
+            updateDisplay(calcArray);
         } else if (validKeys.indexOf(e.key) < (validKeys.length - 2)) { // Backspace
             console.log('Array Length: ', calcArray.length);
             calcArray[calcArray.length - 1] = calcArray[calcArray.length - 1].slice(0, -1);
             if (calcArray[calcArray.length - 1] === '') calcArray.pop();
             console.log(calcArray);
+            updateDisplay(calcArray);
         } else { // it's an '=' or 'Enter' and we need to calculate
             console.log("Will peform calculation now");
+            updateDisplay(["answer coming soon"]);
         }
     }
 }
@@ -55,6 +59,7 @@ function mouseInput() {
          calcArray = calcArrayConcat(calcArray);
     }
     console.log(calcArray);
+    updateDisplay(calcArray);
 }   
 
 
@@ -70,4 +75,9 @@ function calcArrayConcat(arrC, arrK) {
         arrC.pop();
     }
     return arrC;
+}
+
+function updateDisplay(arr) {
+    let equation = document.getElementById('user-input');
+    equation.innerText = arr.join(' ');
 }
