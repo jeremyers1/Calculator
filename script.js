@@ -11,14 +11,12 @@ window.onload = () => {
 }
 
 function keyInput(e) {
-    /* TODO: CheckifEqualsEntered should only reset display if a digit is pressed next.
-    Otherwise, if an operator is pressed first, the answer to previous calculation should become the first number in calcArray
-    */
     updateResult(['']); // to clear any errors
     checkIfEqualsEntered();
-    // TODO: Stop key entry at 22 characters INCLUDING spaces added by array.join(). 
-    // char count = (total # of digits) + ((total # of operators) * 3)
-    // At max char count, output "Too Long" to result area
+    /* TODO??: Stop key entry at 22 characters INCLUDING spaces added by array.join(). 
+     char count = (total # of digits) + ((total # of operators) * 3)
+     At max char count, output "Too Long" in result area
+     */
     if (validKeys.indexOf(e.key) != -1) { // make sure key entry is a valid calculator key
         if (validKeys.indexOf(e.key) < 11) { // was a number or decimal keyed in?
             digitInput(e.key);
@@ -213,7 +211,14 @@ function doMath() { // Following BODMAS order
     
     // should only be one number left... 
     console.log(calcArray); 
-    answer = calcArray[0];
+    let longAnswer = calcArray[0];
+
+    // limit to 15 digits and round to final digit
+    answer = longAnswer.substr(0, 15);
+    if (answer.length > 14) {
+        let numLength = answer.length - 3;
+        answer = Number(answer).toFixed(numLength);
+    }
 }
 
 function addition(num1, num2) {
