@@ -2,6 +2,7 @@ let calcArray = [];
 let validKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '+', '-', '*', 'x', '×', '/', '÷', '^', 'Backspace', '=', "Enter"];
 let decimalEntered = false;
 let equalsEntered = false;
+let answer = '0';
 
 
 window.onload = () => {
@@ -13,8 +14,8 @@ function keyInput(e) {
     /* TODO: CheckifEqualsEntered should only reset display if a digit is pressed next.
     Otherwise, if an operator is pressed first, the answer to previous calculation should become the first number in calcArray
     */
+    updateResult(['']); // to clear any errors
     checkIfEqualsEntered();
-    console.log(e); // to get e Object for information purposes
     // TODO: Stop key entry at 22 characters INCLUDING spaces added by array.join(). 
     // char count = (total # of digits) + ((total # of operators) * 3)
     // At max char count, output "Too Long" to result area
@@ -28,8 +29,9 @@ function keyInput(e) {
         } else if (validKeys.indexOf(e.key) < (validKeys.length - 2)) { // Enable Backspace
             backspace();
         } else { // it's an '=' or 'Enter' and we need to calculate
-            console.log("Will peform calculation now");
-            updateResult('Coming soon...'); 
+            // operatorInput(); // deletes a trailing operator if one exists
+            doMath();
+            updateResult(answer); 
             equalsEntered = true;
         }
         //updateDisplay(calcArray) cannot go here due to backspace and allClear resetting screen
@@ -43,9 +45,7 @@ for (let i = 0; i < buttons.length; i++){
 
 // perform mouseInput logic here
 function mouseInput() {
-    /* TODO: CheckifEqualsEntered should only reset display if a digit is pressed next.
-    Otherwise, if an operator is pressed first, the answer to previous calculation should become the first number in calcArray
-    */
+    updateResult(['']); // to clear any errors
     checkIfEqualsEntered();
     if (this.className === 'digits') {
         digitInput(this.value);
@@ -56,35 +56,43 @@ function mouseInput() {
             updateDisplay(calcArray);
         } else if (this.value === '.15') {
             if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < (validKeys.length - 3)) {
-                mathError('Err: needs a num');
-            } else {
+                mathError('E: needs a num');
+            } else if (calcArray.length === 0) {
+                calcArrayZero();
+            } else { 
                 calcArray[calcArray.length - 1] = fifteenPercent(calcArray[calcArray.length - 1]);
                 updateDisplay(calcArray);
             }
         } else if (this.value === '.2') {
             if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < (validKeys.length - 3)) {
-                mathError('Err: needs a num');
+                mathError('E: needs a num');
+            } else if (calcArray.length === 0) {
+                calcArrayZero();
             } else {
                 calcArray[calcArray.length - 1] = twentyPercent(calcArray[calcArray.length - 1]);
                 updateDisplay(calcArray);
             }
         } else if (this.value === '%') {
             if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < (validKeys.length - 3)) {
-                mathError('Err: needs a num');
+                mathError('E: needs a num');
+            } else if (calcArray.length === 0) {
+                calcArrayZero();
             } else {
                 calcArray[calcArray.length - 1] = percent(calcArray[calcArray.length - 1]);
                 updateDisplay(calcArray);
             }
         } else if (this.value === '√') {
             if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < (validKeys.length - 3)) {
-                mathError('Err: needs a num');
+                mathError('E: needs a num');
+            } else if (calcArray.length === 0) {
+                calcArrayZero();
             } else {
                 calcArray[calcArray.length - 1] = squareRoot(calcArray[calcArray.length - 1]);
                 updateDisplay(calcArray);
             }
         } else if (this.value === '±') {
             if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < (validKeys.length - 3)) {
-                mathError('Err: needs a num');
+                mathError('E: needs a num');
             } else {
                 calcArray[calcArray.length - 1] = plusMinus(calcArray[calcArray.length - 1]);
                 updateDisplay(calcArray);
@@ -97,8 +105,9 @@ function mouseInput() {
         console.log('C');
         backspace();
     } else if (this.value === '=') {
-        console.log("Will peform calculation now");
-        updateResult('Coming soon...'); 
+       // operatorInput(); // deletes a trailing operator if one exists
+        doMath();
+        updateResult(answer); 
         equalsEntered = true;
     }
     //updateDisplay(calcArray) cannot go here as backspace and allClear reset display
@@ -108,9 +117,14 @@ function digitInput(num) {
     // check if decimal has been pushed already, if so, ignore it
     if (num === '.') {
         if (decimalEntered) {
-            mathError("Err: '.' already used");
+            mathError("E: '.' already used");
             return;
-        } else decimalEntered = true; 
+        } else {
+            decimalEntered = true; 
+            if (calcArray.length === 0 || (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < (validKeys.length - 3))) {
+                num = '0.';
+            }
+        } 
     }
     calcArray.push(num);
     calcArray = calcArrayConcat(calcArray);
@@ -120,8 +134,17 @@ function operatorInput(oper) {
     // Check to see if previous key was an operator, if so, replace it.
     if (validKeys.indexOf(calcArray[calcArray.length - 1]) > 10 && validKeys.indexOf(calcArray[calcArray.length - 1]) < (validKeys.length - 3)) {
         calcArray.pop();
+    } else if (calcArray.length === 0) {
+        calcArrayZero();
     }
     calcArray.push(oper);
+}
+
+// If an operator is pressed first, the first number in calcArray should be 0 or answer from previous calculation 
+function calcArrayZero(){
+    calcArray[0] = answer;
+    answer = '0';
+    updateDisplay(calcArray);
 }
     
 // if preceding entry was also a digit, then user is still typing the number, so concat them
@@ -129,7 +152,6 @@ function calcArrayConcat(arr) {
     if (arr.length < 2) return arr;
 
     console.log(arr[arr.length - 1], arr[arr.length - 2]);
-    console.log(typeof (arr[arr.length - 1]-0), typeof (arr[arr.length - 2]-0))
     if (validKeys.indexOf(arr[arr.length - 2]) < 11){ 
         arr[arr.length - 2] = "" + arr[arr.length - 2] + arr[arr.length - 1];
         arr.pop();
@@ -137,8 +159,61 @@ function calcArrayConcat(arr) {
     return arr;
 }
 
-function doMath() {
+function doMath() { // Following BODMAS order
+    // Orders and Roots
+    for (let i = 0; i < (calcArray.length - 1); i++) {
+        if (calcArray[i] === '^') {
+            console.log(calcArray);
+            calcArray[i - 1] = exponent(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i, 2);
+            console.log(calcArray);
+        }
+        // square roots were already dealt with
+    }
 
+    // Division
+    for (let i = 0; i < (calcArray.length - 1); i++) {
+        if (calcArray[i] === '/' || calcArray[i] === '÷') {
+            console.log(calcArray);
+            calcArray[i - 1] = division(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i, 2);
+            console.log(calcArray);
+        }
+    }
+
+     // Multiplication
+    for (let i = 0; i < (calcArray.length - 1); i++) {
+        if (calcArray[i] === '*' || calcArray[i] === '×' || calcArray[i] === 'x') {
+            console.log(calcArray);
+            calcArray[i - 1] = multiplication(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i, 2);
+            console.log(calcArray);
+        }
+    }
+
+    // Addition
+    for (let i = 0; i < (calcArray.length - 1); i++) {
+        if (calcArray[i] === '+') {
+            console.log(calcArray);
+            calcArray[i - 1] = addition(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i, 2);
+            console.log(calcArray);
+        }
+    }
+
+    // Subtraction
+    for (let i = 0; i < (calcArray.length - 1); i++) {
+        if (calcArray[i] === '-') {
+            console.log(calcArray);
+            calcArray[i - 1] = subtraction(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i, 2);
+            console.log(calcArray);
+        }
+    }
+    
+    // should only be one number left... 
+    console.log(calcArray); 
+    answer = calcArray[0];
 }
 
 function addition(num1, num2) {
@@ -154,7 +229,7 @@ function multiplication(num1, num2) {
 }
 
 function division(num1, num2) {
-    if (num2 == 0) mathError('Err: denom is 0');
+    if (num2 == 0) mathError('E: denom is 0');
     else return (Number(num1) / Number(num2)).toString();
 }
 
@@ -163,12 +238,12 @@ function percent(num1) {
 }
 
 function squareRoot(num1) {
-    if (num1 < 0) mathError('Err: neg# root');
+    if (num1 < 0) mathError('E: neg# root');
     return Math.sqrt(Number(num1)).toString();
 }
 
 function exponent(num1, num2) {
-    if (num1 < 0 && num2 < 1) mathError('Err: neg# root');
+    if (num1 < 0 && num2 < 1) mathError('E: neg# root');
     else return Math.pow(Number(num1), Number(num2)).toString();
 }
 
@@ -203,8 +278,6 @@ function allClear() {
 }
 
 function updateDisplay(arr) {
-    console.log(arr);
-    console.log(arr.join(' '));
     let equation = document.getElementById('user-input');
     equation.innerText = arr.join(' ');
 }
